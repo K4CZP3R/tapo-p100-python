@@ -1,0 +1,2 @@
+class ResponseErrorCodeNotZero(Exception):
+    pass
