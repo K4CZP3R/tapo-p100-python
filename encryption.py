@@ -22,8 +22,6 @@ class Encryption:
 
         return [private_key, public_key]
 
-
-
     def generate_key_pair(self) -> KeyPair:
         key = RSA.generate(1024)
         private_key = key.export_key(pkcs=8, format="DER")
@@ -43,7 +41,7 @@ class Encryption:
 
     @staticmethod
     def decode_handshake_key(key: str, key_pair: KeyPair) -> TpLinkCipher:
-        decode: bytes = base64.b64decode(key.encode("ASCII"))
+        decode: bytes = base64.b64decode(key.encode("UTF-8"))
         decode2: bytes = base64.b64decode(key_pair.get_private_key())
 
         cipher = PKCS1_v1_5.new(RSA.import_key(decode2))
@@ -51,13 +49,13 @@ class Encryption:
         if do_final is None:
             raise ValueError("Decryption failed!")
 
-        b_arr: bytearray = bytearray(0)
-        b_arr2: bytearray = bytearray(0)
+        b_arr:bytearray = bytearray()
+        b_arr2:bytearray = bytearray()
 
         for i in range(0, 16):
             b_arr.insert(i, do_final[i])
         for i in range(0, 16):
-            b_arr2.insert(i, do_final[i+16])
+            b_arr2.insert(i, do_final[i + 16])
 
         return TpLinkCipher(b_arr, b_arr2)
 
@@ -69,7 +67,7 @@ class Encryption:
         sb = ""
         for i in range(0, len(digest)):
             b = digest[i]
-            hex_string = hex(b & 255).replace("0x","")
+            hex_string = hex(b & 255).replace("0x", "")
             if len(hex_string) == 1:
                 sb += "0"
                 sb += hex_string
