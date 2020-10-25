@@ -8,7 +8,7 @@ import base64
 class TpLinkCipher:
     def __init__(self, b_arr: bytearray, b_arr2: bytearray):
         self.iv = b_arr2
-        self.key = hashlib.sha256(b_arr).digest()
+        self.key = b_arr
 
     def encrypt(self, data):
         data = pkcs7.PKCS7Encoder().encode(data)
@@ -19,16 +19,5 @@ class TpLinkCipher:
 
     def decrypt(self, data: str):
         aes = AES.new(self.key, AES.MODE_CBC, self.iv)
-        pad_text = aes.decrypt(base64.b64decode(data.encode("UTF-8")))
+        pad_text = aes.decrypt(base64.b64decode(data.encode("UTF-8"))).decode("UTF-8")
         return pkcs7.PKCS7Encoder().decode(pad_text)
-
-    def pkcs7padding(self, data):
-        bs = AES.block_size
-        padding = bs - len(data) % bs
-        padding_text = chr(padding) * padding
-        return data + padding_text
-
-    def pkcs7unpadding(self, data):
-        lengt = len(data)
-        unpadding = ord(data[lengt - 1])
-        return data[0:lengt - unpadding]
