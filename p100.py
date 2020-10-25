@@ -35,24 +35,24 @@ class P100:
         device_info_params.set_device_on(new_state)
 
         device_info_method = DeviceInfoMethod(device_info_params)
-        device_info_method.set_request_time_milis(int(time()))
+        device_info_method.set_request_time_milis(time())
         device_info_method.set_terminal_uuid(terminal_uuid)
         self.log.out(jsons.dumps(device_info_method))
         dim_encrypted = self.tp_link_cipher.encrypt(jsons.dumps(device_info_method))
 
         secure_passthrough_method = SecurePassthroughMethod(dim_encrypted)
-        request_body = jsons.dumps(secure_passthrough_method)
+        request_body = jsons.loads(jsons.dumps(secure_passthrough_method))
 
         self.log.out(f"request_body: {request_body}")
 
         response = Http.make_post_cookie(f"{self.url}?token={self.token}", request_body,
-                                         {'TP_SESSIONID': self.cookie_token})
+                                         {'TP_SESSIONID':self.cookie_token})
         resp_dict: dict = response.json()
 
         self.__validate_response(resp_dict)
         self.log.out(f"response: {resp_dict}")
+        self.log.out(f"{self.tp_link_cipher.decrypt(resp_dict['result']['response'])}")
 
-        self.tp_link_cipher.decrypt(resp_dict['result']['response'])
 
 
     def handshake(self):
@@ -87,18 +87,24 @@ class P100:
         login_device_params.set_password(helpers.mime_encoder(password.encode("UTF-8")))
         login_device_params.set_username(helpers.mime_encoder(digest_username.encode("UTF-8")))
 
-        ldp_encrypted = self.tp_link_cipher.encrypt(jsons.dumps(login_device_params))
+        login_device_method = LoginDeviceMethod(login_device_params)
+        self.log.out(f"unencrypted: {jsons.dumps(login_device_method)}")
 
-        login_device_method = LoginDeviceMethod(ldp_encrypted)
-        request_body = jsons.dumps(login_device_method)
+        ldm_encrypted = self.tp_link_cipher.encrypt(jsons.dumps(login_device_method))
+
+        secure_passthrough_method = SecurePassthroughMethod(ldm_encrypted)
+        request_body = jsons.loads(jsons.dumps(secure_passthrough_method))
         self.log.out(f"request_body: {request_body}")
 
-        response = Http.make_post_cookie(self.url, request_body, {'TP_SESSIONID': self.cookie_token})
+        response = Http.make_post_cookie(self.url, request_body, {'TP_SESSIONID':self.cookie_token})
         resp_dict: dict = response.json()
 
         self.__validate_response(resp_dict)
         self.log.out(f"response: {resp_dict}")
-        self.token = resp_dict['result']['response']
+
+        decrypted = jsons.loads(self.tp_link_cipher.decrypt(resp_dict['result']['response']))
+        print(decrypted)
+        self.token = decrypted['result']['token']
         return True
 
     def __generate_keypair(self):
