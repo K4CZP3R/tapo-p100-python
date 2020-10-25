@@ -8,5 +8,5 @@ To do list
 - [x] Handshake
 - [x] Encrypt data
 - [x] Login request
-- [ ] Decrypt data
-- [ ] Change state
+- [x] Decrypt data
+- [x] Change state
