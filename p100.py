@@ -5,7 +5,8 @@ from models.params.handshake_params import HandshakeParams
 from models.methods.login_device_method import LoginDeviceMethod
 from models.params.login_device_params import LoginDeviceParams
 from models.methods.handshake_method import HandshakeMethod
-from models.methods.device_info_method import DeviceInfoMethod
+from models.methods.set_device_info_method import SetDeviceInfoMethod
+from models.methods.get_device_info_method import GetDeviceInfoMethod
 from models.params.device_info_params import DeviceInfoParams
 from models.methods.secure_passthrough_method import SecurePassthroughMethod
 from http_client import Http
@@ -31,6 +32,37 @@ class P100:
 
         self.tp_link_cipher: TpLinkCipher = None
 
+    def get_state(self):
+        device_info_method = GetDeviceInfoMethod(None)
+        logger.debug(f"Device info method: {jsons.dumps(device_info_method)}")
+        dim_encrypted = self.tp_link_cipher.encrypt(jsons.dumps(device_info_method))
+        logger.debug(f"Device info method encrypted: {dim_encrypted}")
+
+        secure_passthrough_method = SecurePassthroughMethod(dim_encrypted)
+        logger.debug(f"Secure passthrough method: {secure_passthrough_method}")
+        request_body = jsons.loads(jsons.dumps(secure_passthrough_method))
+        logger.debug(f"Request body: {request_body}")
+
+        
+        response = Http.make_post_cookie(f"{self.url}?token={self.token}", request_body,
+                                         {'TP_SESSIONID':self.cookie_token})
+        resp_dict: dict = response.json()
+        logger.debug(f"Device responded with: {resp_dict}")
+
+        self.__validate_response(resp_dict)
+
+        decrypted_inner_response = jsons.loads(
+            self.tp_link_cipher.decrypt(
+                resp_dict['result']['response']
+        ))
+        logger.debug(f"Device inner response: {decrypted_inner_response}")
+        self.__validate_response(decrypted_inner_response)
+
+        return decrypted_inner_response['result']
+
+    def is_on(self) -> bool:
+        return self.get_state()['device_on']
+
     def change_state(self, new_state: int, terminal_uuid: str):
         new_state_bool = True if new_state == 1 else False
         logger.debug(f"Will change state to {new_state_bool}, terminal uuid: {terminal_uuid}")
@@ -38,7 +70,7 @@ class P100:
         device_info_params.set_device_on(new_state_bool)
         logger.debug(f"Device info params: {jsons.dumps(device_info_params)}")
 
-        device_info_method = DeviceInfoMethod(device_info_params)
+        device_info_method = SetDeviceInfoMethod(device_info_params)
         device_info_method.set_request_time_milis(time())
         device_info_method.set_terminal_uuid(terminal_uuid)
         logger.debug(f"Device info method: {jsons.dumps(device_info_method)}")
@@ -64,7 +96,6 @@ class P100:
         ))
         logger.debug(f"Device inner response: {decrypted_inner_response}")
         self.__validate_response(decrypted_inner_response)
-
 
     def handshake(self):
         logger.debug("Will perform handshaking...")
