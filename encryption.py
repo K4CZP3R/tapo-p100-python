@@ -1,38 +1,21 @@
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import PKCS1_v1_5
-from logger import Logger
 from models.key_pair import KeyPair
 from tp_link_cipher import TpLinkCipher
-import base64, hashlib, helpers
+import base64, hashlib, helpers, logging
 
+logger = logging.getLogger('root')
 
 class Encryption:
-    def __init__(self):
-        self.log = Logger("Encryption")
-
-    @staticmethod
-    def __remove_annotations(private_key: str, public_key: str) -> [str, str]:
-        private_key = private_key.replace("-----BEGIN PRIVATE KEY-----\n", "")
-        private_key = private_key.replace("\n-----END PRIVATE KEY-----", "")
-        private_key = private_key.replace("\n", "\r\n")
-
-        public_key = public_key.replace("-----BEGIN PUBLIC KEY-----\n", "")
-        public_key = public_key.replace("\n-----END PUBLIC KEY-----", "")
-        public_key = public_key.replace("\n", "\r\n")
-
-        return [private_key, public_key]
-
     def generate_key_pair(self) -> KeyPair:
+        logger.debug(f"Generating key...")
         key = RSA.generate(1024)
         private_key = key.export_key(pkcs=8, format="DER")
         public_key = key.publickey().export_key(pkcs=8, format="DER")
 
-        # strip down annotations
+        logger.debug("MIME encoding private and public key...")
         private_key = helpers.mime_encoder(private_key)
         public_key = helpers.mime_encoder(public_key)
-
-        self.log.out(f"Generated private_key: {private_key}")
-        self.log.out(f"Generated public_key: {public_key}")
 
         return KeyPair(
             private_key=private_key,
@@ -41,6 +24,7 @@ class Encryption:
 
     @staticmethod
     def decode_handshake_key(key: str, key_pair: KeyPair) -> TpLinkCipher:
+        logger.debug(f"Will decode handshake key (...{key[5:]}) using current key pair")
         decode: bytes = base64.b64decode(key.encode("UTF-8"))
         decode2: bytes = base64.b64decode(key_pair.get_private_key())
 

@@ -1,9 +1,26 @@
-from logger import Logger
+
 from p100 import P100
+import logging
+import argparse
 
-log = Logger("main")
+parser = argparse.ArgumentParser(description="Change plug state.")
+parser.add_argument('tplink_email', metavar='TPLINK_EMAIL', type=str, help="Your TPLink account email")
+parser.add_argument('tplink_password', metavar='TPLINK_PASS', type=str, help="Your TPLink account password")
+parser.add_argument('address', metavar='ADDR', type=str, help="Address of your plug (ex. 192.168.2.22)")
+parser.add_argument('new_state', metavar='STATE', type=bool, help="New state of the plug (turn on/off)")
 
-my_bulb = P100("192.168.137.13")
+
+args = parser.parse_args()
+
+
+logger = logging.getLogger('root')
+FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
+logging.basicConfig(format=FORMAT)
+logger.setLevel(logging.DEBUG)
+
+logger.info(f"Will change state of plug at '{args.address}' to '{args.new_state}'")
+
+my_bulb = P100(args.address)
 my_bulb.handshake()
-my_bulb.login_request("TPLINKEMAIL", "TPLINKPASSWORD")
-my_bulb.change_state(True, "88-00-DE-AD-52-E1")
+my_bulb.login_request(args.tplink_email, args.tplink_password)
+my_bulb.change_state(args.new_state, "88-00-DE-AD-52-E1")
