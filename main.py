@@ -25,6 +25,6 @@ my_bulb.handshake()
 my_bulb.login_request(args.tplink_email, args.tplink_password)
 my_bulb.change_state(args.new_state, "88-00-DE-AD-52-E1")
 
-# Now if the plug is on
+# Now check if the plug is on
 is_plug_on = my_bulb.is_on()
 logger.info(f"Returned result: {is_plug_on}")
