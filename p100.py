@@ -31,10 +31,11 @@ class P100:
 
         self.tp_link_cipher: TpLinkCipher = None
 
-    def change_state(self, new_state: bool, terminal_uuid: str):
-        logger.debug(f"Will change state to {new_state}, terminal uuid: {terminal_uuid}")
+    def change_state(self, new_state: int, terminal_uuid: str):
+        new_state_bool = True if new_state == 1 else False
+        logger.debug(f"Will change state to {new_state_bool}, terminal uuid: {terminal_uuid}")
         device_info_params = DeviceInfoParams()
-        device_info_params.set_device_on(new_state)
+        device_info_params.set_device_on(new_state_bool)
         logger.debug(f"Device info params: {jsons.dumps(device_info_params)}")
 
         device_info_method = DeviceInfoMethod(device_info_params)

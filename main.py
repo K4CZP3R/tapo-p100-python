@@ -7,7 +7,7 @@ parser = argparse.ArgumentParser(description="Change plug state.")
 parser.add_argument('tplink_email', metavar='TPLINK_EMAIL', type=str, help="Your TPLink account email")
 parser.add_argument('tplink_password', metavar='TPLINK_PASS', type=str, help="Your TPLink account password")
 parser.add_argument('address', metavar='ADDR', type=str, help="Address of your plug (ex. 192.168.2.22)")
-parser.add_argument('new_state', metavar='STATE', type=bool, help="New state of the plug (turn on/off)")
+parser.add_argument('new_state', metavar='STATE', type=int, help="New state of the plug (on=1 off=0) ")
 
 
 args = parser.parse_args()

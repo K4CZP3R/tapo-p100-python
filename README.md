@@ -30,10 +30,10 @@ positional arguments:
   TPLINK_EMAIL  Your TPLink account email
   TPLINK_PASS   Your TPLink account password
   ADDR          Address of your plug (ex. 192.168.2.22)
-  STATE         New state of the plug (turn on/off)
+  STATE         New state of the plug (on=1 off=0)
 
 optional arguments:
   -h, --help    show this help message and exit
 ```
 
-Example: `python main.py email@gmail.com Password123 192.168.137.135 True`
+Example: `python main.py email@gmail.com Password123 192.168.137.135 1`
