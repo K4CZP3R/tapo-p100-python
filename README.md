@@ -3,8 +3,6 @@ Work in progress implementation of tapo protocol in python.
 
 Writeup here: https://k4czp3r.xyz/reverse-engineering/tp-link/tapo/2020/10/15/reverse-engineering-tp-link-tapo.html
 
-[![BuyMeCoffee][buymecoffeebadge]][buymecoffee]
-
 To do list
 
 - [x] Handshake
@@ -39,7 +37,3 @@ optional arguments:
 ```
 
 Example: `python main.py email@gmail.com Password123 192.168.137.135 1`
-
----
-[buymecoffee]: https://www.buymeacoffee.com/k4czp3r
-[buymecoffeebadge]: https://www.buymeacoffee.com/assets/img/custom_images/yellow_img.png
