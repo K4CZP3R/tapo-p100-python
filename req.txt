@@ -3,7 +3,7 @@ chardet==3.0.4
 idna==2.10
 jsons==1.3.0
 pkcs7==0.1.2
-pycryptodome==3.9.8
+pycryptodome==3.18.0
 requests==2.24.0
 typish==1.9.1
 urllib3==1.25.10
