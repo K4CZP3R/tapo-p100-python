@@ -11,14 +11,14 @@ To do list
 - [x] Decrypt data
 - [x] Change state
 
-# How to install it (Linux)
+# How to install it
 1. Make venv: `python3 -m venv venv`
-2. Activate venv: `source venv/bin/activate`
-3. Install wheel: `pip install wheel`
-4. Install requirements `pip install -r req.txt`
 
-# How to install it (Windows)
-TODO
+2. Activate venv: 
+    * Linux: `source venv/bin/activate`
+    * Windows: `./venv/Scripts/activate`
+
+3. Install requirements `pip install -r req.txt`
 
 # How to use it
 ```
